@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="Start">Start</string>
+    <string name="Stop">Stop</string>
+    <string name="set">Set</string>
+    <string name="cancel">Cancel</string>
+    <string name="set_clock">set clock</string>
+</resources>
