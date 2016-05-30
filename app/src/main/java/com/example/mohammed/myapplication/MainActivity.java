@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -27,6 +28,9 @@ public class MainActivity extends AppCompatActivity  implements TimePickerFragme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         clock=(TextView) findViewById(R.id.text_clock);
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        String time = sharedPref.getString("formatKey", "Set Clock");
+        clock.setText(time);
 
     }
 
@@ -128,5 +132,16 @@ public class MainActivity extends AppCompatActivity  implements TimePickerFragme
 
         clock.setText(hourFormat+":"+minuteFormat+ " "+am_pmFormat);
         Toast.makeText(this,"Alarm set "+clock.getText().toString(),Toast.LENGTH_LONG).show();
+        writeToSharedPref(hourFormat,minuteFormat,am_pmFormat);
+    }
+
+    private void writeToSharedPref(String hourFormat, String minuteFormat, String am_pmFormat) {
+
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("formatKey",hourFormat+":"+minuteFormat+ " "+am_pmFormat);
+        editor.commit();
+
+
     }
 }

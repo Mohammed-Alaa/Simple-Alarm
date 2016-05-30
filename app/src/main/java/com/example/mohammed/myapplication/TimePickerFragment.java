@@ -18,10 +18,6 @@ public class TimePickerFragment  extends DialogFragment
         implements TimePickerDialog.OnTimeSetListener {
 
     Communicator communicator=null;
-    Button set;
-    Button cancel;
-    TimePickerDialog time;
-
 
 
     @Override
