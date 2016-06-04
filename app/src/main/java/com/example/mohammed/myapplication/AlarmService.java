@@ -3,10 +3,14 @@ package com.example.mohammed.myapplication;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 /**
@@ -14,33 +18,102 @@ import android.util.Log;
  */
 public class AlarmService extends IntentService {
 
+    static final public String COPA_RESULT = "com.controlj.copame.backend.COPAService.REQUEST_PROCESSED";
+
+    static final public String COPA_MESSAGE = "com.controlj.copame.backend.COPAService.COPA_MSG";
+    LocalBroadcastManager broadcaster;
     int notificationID=12;
+    int count;
+    String zekr;
+
     public AlarmService(){
           super("running");
     }
 
+
+    @Override
+    public void onCreate() {
+
+        super.onCreate();
+        broadcaster = LocalBroadcastManager.getInstance(this);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        count= preferences.getInt("countKey", 0);
+        if(count>=5){
+            count=0;
+        }else {
+            count++;
+        }
+
+        zekr=getResources().getStringArray(R.array.array_ar)[count];
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt("countKey",count);
+        editor.apply();
+        sendResult(zekr);
+
+
+
+    }
+
+    public void sendResult(String message) {
+        Intent intent = new Intent(COPA_RESULT);
+        if(message != null)
+            intent.putExtra(COPA_MESSAGE, message);
+        broadcaster.sendBroadcast(intent);
+    }
+
+
+
+
+
     @Override
     protected void onHandleIntent(Intent intent) {
 // Do the task here
-
-
-        // Release the wake lock provided by the BroadcastReceiver.
-        AlarmReceiver.completeWakefulIntent(intent);
+       // AlarmReceiver.completeWakefulIntent(intent);
         Log.e("AlarmService", "Service running");
+
+
+     Intent notifyIntent =
+                new Intent(this, MainActivity.class);
+                notifyIntent.putExtra("zekrData",zekr);
+// Sets the Activity to start in a new, empty task
+        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                Intent.FLAG_ACTIVITY_CLEAR_TASK);
+// Creates the PendingIntent
+        PendingIntent pIntent =
+                PendingIntent.getActivity(
+                        this,
+                        0,
+                        notifyIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.alarm)
-                        .setContentTitle("My notification")
+                        .setSmallIcon(R.drawable.alarm_clock)
+                        .setContentTitle(getResources().getString(R.string.notification_title_ar))
                         .setAutoCancel(true)
+                        .setContentIntent(pIntent)
+                        .setPriority(Notification.PRIORITY_HIGH)
                         .setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.notification))
                         .setDefaults(Notification.DEFAULT_VIBRATE|Notification.DEFAULT_LIGHTS)
-                        .setContentText("Hello World!");
+                        .setContentText(zekr);
 
 
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
 // notificationID allows you to update the notification later on.
         mNotificationManager.notify(notificationID, mBuilder.build());
+        // Release the wake lock provided by the BroadcastReceiver.
+        AlarmReceiver.completeWakefulIntent(intent);
+
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.e("AlarmService", "Service stopped");
+        super.onDestroy();
 
     }
 }

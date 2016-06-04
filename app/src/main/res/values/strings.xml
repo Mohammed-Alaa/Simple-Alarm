@@ -1,8 +1,144 @@
-<resources>
-    <string name="app_name">My Application</string>
+<resources xmlns:android="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Zekr</string>
     <string name="Start">Start</string>
     <string name="Stop">Stop</string>
     <string name="set">Set</string>
     <string name="cancel">Cancel</string>
     <string name="set_clock">set clock</string>
+    <string name="popup_string">Wake up man.</string>
+
+
+    <string name="one_ar">لا اله الا انت سبحانك اني كنت من الظالمين</string>
+    <string name="two_ar">اللهم اتنا في الدنيا حسنه وفي الاخره حسنه وقنا عذاب النار</string>
+    <string name="three_ar">اللهم اني اعوذ بك من عذاب جهنم ومن عذاب القبر وفتنه المحيا والممات وفتنه المسيح الدجال</string>
+    <string name="four_ar">استغفر الله الذي لا اله الا هو الحي القيوم واتوب اليه</string>
+    <string name="five_ar">سبحان الله وبحمد سبحان الله العظيم</string>
+    <string name="six_ar">لا حول ولا قوه الا بالله</string>
+
+
+    <string-array name="array_ar">
+        <item>@string/one_ar</item>
+        <item>@string/two_ar</item>
+        <item>@string/three_ar</item>
+        <item>@string/four_ar</item>
+        <item>@string/five_ar</item>
+        <item>@string/six_ar</item>
+    </string-array>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_social_recommendations">Enable social recommendations</string>
+    <string name="pref_description_social_recommendations">Recommendations for people to contact
+        based on your message history
+    </string>
+
+    <string name="pref_title_display_name">Display name</string>
+    <string name="pref_default_display_name">John Smith</string>
+
+    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
+    <string-array name="pref_example_list_titles">
+        <item>Always</item>
+        <item>When possible</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_example_list_values">
+        <item>1</item>
+        <item>0</item>
+        <item>-1</item>
+    </string-array>
+
+    <!-- Example settings for Data & Sync -->
+    <string name="pref_header_data_sync">Data &amp; sync</string>
+
+    <string name="pref_title_sync_frequency">Sync frequency</string>
+    <string-array name="pref_sync_frequency_titles">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_sync_frequency_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+        <item>-1</item>
+    </string-array>
+
+    <string name="pref_title_system_sync_settings">System sync settings</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_notifications">Notifications</string>
+
+    <string name="pref_title_new_message_notifications">New message notifications</string>
+
+    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_ringtone_silent">Silent</string>
+
+    <string name="pref_title_vibrate">Vibrate</string>
+    <string name="setting">setting</string>
+    <string name="settings_ar">الاعدادات</string>
+    <string name="notification_title_ar">أزكر الله</string>
+    <string name="city">City</string>
+    <string name="citysamary">city name</string>
+    <string name="city_name">city_name</string>
+    <string name="fajr">Fajr</string>
+    <string name="sunrise">Sunrise</string>
+    <string name="fajr_ar">الفجر</string>
+    <string name="sunrise_ar">الشروق</string>
+    <string name="dhuhr">Dhuhr</string>
+    <string name="dhuhr_ar">الظهر</string>
+    <string name="asr">Asr</string>
+    <string name="asr_ar">العصر</string>
+    <string name="maghrib">Maghrib</string>
+    <string name="maghrib_ar">المغرب</string>
+    <string name="isha">Isha</string>
+    <string name="isha_ar">العشاء</string>
+    <string name="sunset">Sunset</string>
+    <string name="sunset_ar">الغروب</string>
+    <string name="jumu3a_ar">الجمعة</string>
+    <string name="jumu3a_en">Jumu3a</string>
+
+    <string-array name="citylistentries" >
+        <item>Cairo</item>
+        <item>Alexandria</item>
+        <item>Aswan</item>
+        <item>Qena</item>
+        <item>Mahala</item>
+        <item>Asyut</item>
+        <item>Giza</item>
+        <item>Helwan</item>
+        <item>Faiyum</item>
+        <item>Mansura</item>
+
+
+
+    </string-array>
+    <string-array name="citylistvalues">
+        <item>30.044420/31.235712</item>
+        <item>31.200092/29.918739</item>
+        <item>24.088938/32.899829</item>
+        <item>26.155061/32.716012</item>
+        <item>30.600314/32.267365</item>
+        <item>27.178312/31.185926</item>
+        <item>30.013056/31.208853</item>
+        <item>29.848319/31.336853</item>
+        <item>29.308402/30.842850</item>
+        <item>31.040948/31.040948</item>
+
+
+
+
+
+
+
+
+    </string-array>
 </resources>

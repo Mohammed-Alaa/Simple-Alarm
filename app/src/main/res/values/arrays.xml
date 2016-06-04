@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="date_range_arr">saterday</string-array>
+    <string-array name="val_arr">daily</string-array>
+    <string-array name="date_format_arr">24,12</string-array>
+    <string-array name="time_option_arr">time</string-array>
+</resources>
