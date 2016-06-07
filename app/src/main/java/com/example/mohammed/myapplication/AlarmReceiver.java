@@ -23,15 +23,19 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
     private AlarmManager alarmMgr;
     // The pending intent that is triggered when the alarm fires.
     private PendingIntent alarmIntent;
-
+    boolean vibrate;
+    SharedPreferences sharedPref;
+    String soundUri;
+    public final static String EXTRA_EVENT_ID = "com.example.mohammed.EVENT_ID";
 
     // Triggered by the Alarm periodically (starts the service to run task)
     @Override
     public void onReceive(Context context, Intent intent) {
+
+
         Intent service = new Intent(context, AlarmService.class);
         // Start the service, keeping the device awake while it is launching.
         startWakefulService(context, service);
-        // END_INCLUDE(alarm_onreceive)
 
     }
 

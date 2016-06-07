@@ -16,11 +16,13 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
     TextView zekr;
     GregorianCalendar geoCal;
     BroadcastReceiver receiver;
-    AlarmReceiver alarmReceiver;
     double latitude, longitude;
 
     protected TextView mTextViewCity;
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
     PrayTime prayers;
     ArrayList prayerTimes;
     ArrayList prayerNames;
-
+    SwitchCompat switchCompat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,9 +87,6 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
         double timezone = (Calendar.getInstance().getTimeZone()
                 .getOffset(Calendar.getInstance().getTimeInMillis()))
                 / (1000 * 60 * 60);
-
-
-
 
 
         String lat_long = sharedPref.getString("city_name", "30.044420/31.235712");
@@ -159,6 +157,28 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
     }
 
     private void initViews() {
+        switchCompat = (SwitchCompat) findViewById(R.id.btn_switch);
+        switchCompat.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    String time=clock.getText().toString();
+                    String am_pm=time.substring(time.length() -2,time.length());
+                    int hours=Integer.parseInt(time.substring(0,time.indexOf(":")));
+                    int minuts=Integer.parseInt(time.substring(time.indexOf(":")+1,time.length()-3));
+
+                    Toast.makeText(getApplicationContext(),hours +" " + minuts +" "+ am_pm ,Toast.LENGTH_LONG).show();
+
+                    if(am_pm.equalsIgnoreCase("PM")){
+                       setTime(hours+12,minuts,true);
+                    }else {
+                        setTime(hours,minuts,false);
+                    }
+                } else {
+                    cancelAlarm();
+                }
+            }
+        });
         geoCal = new GregorianCalendar();
         clock = (TextView) findViewById(R.id.text_clock);
         zekr = (TextView) findViewById(R.id.text_zekr);
@@ -209,9 +229,11 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
 
     private void UpdateUi(Intent intent) {
 
+
         String s = intent.getStringExtra(AlarmService.COPA_MESSAGE);
         // do something here.
         zekr.setText(s);
+
     }
 
 
@@ -253,11 +275,14 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
         return super.onOptionsItemSelected(item);
     }
 
-    public void cancelAlarm(View view) {
+    public void cancelAlarm() {
         // If the alarm has been set, cancel it.
         try {
             if (alarm != null) {
                 alarm.cancel(pIntent);
+            }
+            if(switchCompat.isChecked()){
+                switchCompat.setChecked(false);
             }
 
         } catch (Exception e) {
@@ -292,6 +317,7 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
         Log.e("MainActivity ", "onResume()");
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String lat_long = sharedPref.getString("city_name", "30.044420/31.235712");
+
         latitude = Double.parseDouble(lat_long.substring(0, lat_long.indexOf('/')));
         longitude = Double.parseDouble(lat_long.substring(lat_long.indexOf('/') + 1));
 
@@ -348,12 +374,6 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
     protected void onPause() {
         super.onPause();
         Log.e("MainActivity ", "onPause()");
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String lat_long = sharedPref.getString("city_name", "30.044420/31.235712");
-
-
-        latitude = Double.parseDouble(lat_long.substring(0, lat_long.indexOf('/')));
-        longitude = Double.parseDouble(lat_long.substring(lat_long.indexOf('/') + 1));
 
     }
 
@@ -380,8 +400,12 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
 
-        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY, pIntent);
+        alarm.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
+                pIntent);
+
+        if(!switchCompat.isChecked()){
+            switchCompat.setChecked(true);
+        }
 
     }
 
@@ -433,4 +457,7 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
     }
 
 
+    public void switchAlarm(View view) {
+
+    }
 }

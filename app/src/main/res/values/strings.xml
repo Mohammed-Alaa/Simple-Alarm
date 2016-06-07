@@ -31,48 +31,13 @@
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
 
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
 
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
 
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
 
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
 
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
 
-    <string name="pref_title_system_sync_settings">System sync settings</string>
+
+
 
     <!-- Example settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>
@@ -105,6 +70,9 @@
     <string name="sunset_ar">الغروب</string>
     <string name="jumu3a_ar">الجمعة</string>
     <string name="jumu3a_en">Jumu3a</string>
+    <string name="ringtone_pref">ringtone_pref</string>
+    <string name="vibrate_pref">vibrate_pref</string>
+    <string name="time_format">time_format</string>
 
     <string-array name="citylistentries" >
         <item>Cairo</item>
@@ -118,9 +86,8 @@
         <item>Faiyum</item>
         <item>Mansura</item>
 
-
-
     </string-array>
+
     <string-array name="citylistvalues">
         <item>30.044420/31.235712</item>
         <item>31.200092/29.918739</item>
@@ -132,13 +99,6 @@
         <item>29.848319/31.336853</item>
         <item>29.308402/30.842850</item>
         <item>31.040948/31.040948</item>
-
-
-
-
-
-
-
 
     </string-array>
 </resources>
