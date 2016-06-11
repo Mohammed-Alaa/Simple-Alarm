@@ -1,5 +1,6 @@
-<resources xmlns:android="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">Zekr</string>
+<resources>
+
+<string name="app_name">Zekr</string>
     <string name="Start">Start</string>
     <string name="Stop">Stop</string>
     <string name="set">Set</string>
@@ -73,6 +74,9 @@
     <string name="ringtone_pref">ringtone_pref</string>
     <string name="vibrate_pref">vibrate_pref</string>
     <string name="time_format">time_format</string>
+    <string name="hana_ar">حان وقت صلاة</string>
+    <string name="athan_sound">Athan Sound</string>
+    <string name="nasser_elqatamy">Nasser El Qatamy</string>
 
     <string-array name="citylistentries" >
         <item>Cairo</item>
@@ -101,4 +105,24 @@
         <item>31.040948/31.040948</item>
 
     </string-array>
+
+
+
+
+
+    <string-array name="athanlistentries" >
+        <item>Nasser El Qatamy</item>
+        <item>Abd El Basset</item>
+        <item>El Haram El Makki</item>
+
+
+    </string-array>
+
+    <string-array name="athanlistvalues">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+
+    </string-array>
+
 </resources>

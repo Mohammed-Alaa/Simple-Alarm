@@ -1,137 +1,141 @@
 package com.example.mohammed.myapplication;
 
-import android.app.IntentService;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
+import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+
+import java.io.IOException;
 
 /**
  * Created by mohammed on 5/29/16.
  */
-public class AlarmService extends IntentService {
+public class AlarmService extends Service implements MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnErrorListener, AudioManager.OnAudioFocusChangeListener {
 
-    static final public String COPA_RESULT = "com.controlj.copame.backend.COPAService.REQUEST_PROCESSED";
-
-    static final public String COPA_MESSAGE = "com.controlj.copame.backend.COPAService.COPA_MSG";
-    LocalBroadcastManager broadcaster;
-    int notificationID = 12;
-    int count;
-    String zekr;
-    boolean vibrate;
-    SharedPreferences sharedPref;
-    String soundUri;
-
-
-    public AlarmService() {
-        super("running");
-    }
-
+    MediaPlayer audioPlayer = null;
 
 
     @Override
     public void onCreate() {
-
         super.onCreate();
-        broadcaster = LocalBroadcastManager.getInstance(this);
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        count = preferences.getInt("countKey", 0);
-        if (count >= 5) {
-            count = 0;
-        } else {
-            count++;
+        Log.d(MainActivity.TAG, "Audio service created!");
+
+
+    }
+
+
+    private void initMediaPlayer() {
+        if (null == audioPlayer) {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            String defaultSound="android.resource://" + getPackageName() + "/" + R.raw.athan;
+            String path = preferences.getString("athan_sound", defaultSound);
+            switch (path) {
+                case "1":
+                    path = "android.resource://" + getPackageName() + "/" + R.raw.athan;
+                    break;
+                case "2":
+                    path = "android.resource://" + getPackageName() + "/" + R.raw.abd_el_basset;
+                    break;
+                case "3":
+                    path = "android.resource://" + getPackageName() + "/" + R.raw.el_haram;
+                    break;
+            }
+            Log.e("azan",path);
+            audioPlayer = new MediaPlayer();
+            try {
+                audioPlayer.setDataSource(getApplicationContext(), Uri.parse(path));
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(MainActivity.TAG, e.getMessage(), e);
+            }
+            audioPlayer.setOnPreparedListener(this);
+            audioPlayer.setOnErrorListener(this);
+            audioPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+            audioPlayer.prepareAsync(); // prepare async to not block main thread
+            Log.d(MainActivity.TAG, "Audio player started asynchronously!");
         }
-
-        zekr = getResources().getStringArray(R.array.array_ar)[count];
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putInt("countKey", count);
-        editor.apply();
-        sendResult(zekr);
-
-
     }
 
-    public void sendResult(String message) {
-        Intent intent = new Intent(COPA_RESULT);
-        if (message != null)
-            intent.putExtra(COPA_MESSAGE, message);
-        broadcaster.sendBroadcast(intent);
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        initMediaPlayer();
+        return Service.START_STICKY;
     }
 
+    /**
+     * Called when MediaPlayer is ready
+     */
+    public void onPrepared(MediaPlayer player) {
+        audioPlayer.start();
+        Log.d(MainActivity.TAG, "Audio started playing!");
+        if (!audioPlayer.isPlaying()) {
+            Log.d(MainActivity.TAG, "Problem in playing audio");
+        }
+    }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-// Do the task here
-        // AlarmReceiver.completeWakefulIntent(intent);
-        Log.e("AlarmService", "Service running");
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        soundUri = sharedPref.getString("ringtone_pref", "android.resource://" + getPackageName() + "/" + R.raw.notification);
-        vibrate = sharedPref.getBoolean("vibrate_pref", true);
-
-
-        Intent notifyIntent =
-                new Intent(this, MainActivity.class);
-        notifyIntent.putExtra("zekrData", zekr);
-// Sets the Activity to start in a new, empty task
-        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                Intent.FLAG_ACTIVITY_CLEAR_TASK);
-// Creates the PendingIntent
-        PendingIntent pIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        notifyIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-
-
-
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.alarm_clock)
-                        .setContentTitle(getResources().getString(R.string.notification_title_ar))
-                        .setAutoCancel(true)
-                        .setContentIntent(pIntent)
-                        .setVibrate((vibrate) ? new long[]{50, 100, 100} : new long[]{})
-                        .setPriority(Notification.PRIORITY_HIGH)
-                        .setSound(Uri.parse(soundUri))
-                        .setContentText(zekr);
-
-
-
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-// notificationID allows you to update the notification later on.
-        mNotificationManager.notify(notificationID, mBuilder.build());
-        // Release the wake lock provided by the BroadcastReceiver.
-        AlarmReceiver.completeWakefulIntent(intent);
-
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        // TODO ... react appropriately ...
+        // The MediaPlayer has moved to the Error state, must be reset!
+        Log.e(MainActivity.TAG, "what=" + what + " extra=" + extra);
+        return false; // TODO change to true if error is handed by this fnct.
     }
 
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                // resume playback
+                if (audioPlayer == null) initMediaPlayer();
+                else if (!audioPlayer.isPlaying()) audioPlayer.start();
+                audioPlayer.setVolume(1.0f, 1.0f);
+                break;
 
-    @Override
+            case AudioManager.AUDIOFOCUS_LOSS:
+                // Lost focus for an unbounded amount of time: stop playback and release media player
+                if (audioPlayer.isPlaying()) audioPlayer.stop();
+                audioPlayer.release();
+                audioPlayer = null;
+                break;
+
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                // Lost focus for a short time, but we have to stop
+                // playback. We don't release the media player because playback
+                // is likely to resume
+                if (audioPlayer.isPlaying()) audioPlayer.pause();
+                break;
+
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                // Lost focus for a short time, but it's ok to keep playing
+                // at an attenuated level
+                if (audioPlayer.isPlaying()) audioPlayer.setVolume(0.1f, 0.1f);
+                break;
+        }
+    }
+
+    public void onStop() {
+        if (audioPlayer != null) {
+            if (audioPlayer.isPlaying()) audioPlayer.stop();
+            audioPlayer.release();
+            audioPlayer = null;
+        }
+    }
+
+    public void onPause() {
+        if (audioPlayer.isPlaying()) audioPlayer.stop();
+    }
+
     public void onDestroy() {
-        Log.e("AlarmService", "Service stopped");
-        super.onDestroy();
-
+        onStop();
     }
 
-    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
-
-
-
 }

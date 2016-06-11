@@ -30,6 +30,7 @@ public class SettingsActivity extends PreferenceActivity
         bindPreferenceSummaryToValue(findPreference(getString(R.string.city_name)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.ringtone_pref)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.vibrate_pref)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.athan_sound)));
 
 
     }

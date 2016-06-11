@@ -2,13 +2,15 @@ package com.example.mohammed.myapplication;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
-import android.support.v4.content.WakefulBroadcastReceiver;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import java.util.Calendar;
@@ -17,25 +19,57 @@ import java.util.GregorianCalendar;
 /**
  * Created by mohammed on 5/29/16.
  */
-public class AlarmReceiver extends WakefulBroadcastReceiver {
+public class AlarmReceiver extends BroadcastReceiver {
 
     // The app's AlarmManager, which provides access to the system alarm services.
     private AlarmManager alarmMgr;
     // The pending intent that is triggered when the alarm fires.
     private PendingIntent alarmIntent;
-    boolean vibrate;
-    SharedPreferences sharedPref;
-    String soundUri;
     public final static String EXTRA_EVENT_ID = "com.example.mohammed.EVENT_ID";
 
     // Triggered by the Alarm periodically (starts the service to run task)
     @Override
     public void onReceive(Context context, Intent intent) {
 
-
+        String message = intent.getStringExtra(MainActivity.NOTIFY_MESSAGE);
         Intent service = new Intent(context, AlarmService.class);
-        // Start the service, keeping the device awake while it is launching.
-        startWakefulService(context, service);
+        context.startService(service);
+
+        // Build intent for notification content
+        int notificationId = 0;
+        int eventId = 0;
+        Intent nextPrayerIntent = new Intent(context, MainActivity.class);
+        nextPrayerIntent.putExtra(EXTRA_EVENT_ID, eventId);
+        PendingIntent nextPrayerPendingIntent =
+                PendingIntent.getActivity(context, 0, nextPrayerIntent, 0);
+
+        // Use another intent to stop athan from notification button
+        PendingIntent cancelAthanPendingIntent =
+                CancelAthanActivity.getCancelAthanIntent(notificationId, context);
+
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.drawable.alarm)
+                        .setContentTitle(MainActivity.TAG)
+                        .setContentText(message)
+                        .setContentIntent(nextPrayerPendingIntent)
+                        .setCategory(NotificationCompat.CATEGORY_ALARM)
+                        .setAutoCancel(true)
+                        .setDeleteIntent(cancelAthanPendingIntent)
+                        .addAction(R.drawable.delete, "وقف الآذان", cancelAthanPendingIntent);
+
+        // Get an instance of the NotificationManager service
+        NotificationManagerCompat notificationManager =
+                NotificationManagerCompat.from(context);
+
+        // Build the notification and issues it with notification manager.
+        notificationManager.notify(notificationId, notificationBuilder.build());
+
+        // ask Activity to update display to next prayer. TODO: delay highlighting of next prayer
+        Intent updateIntent = new Intent(MainActivity.UPDATE_MESSAGE);
+        context.sendBroadcast(updateIntent);
+
+
 
     }
 
@@ -62,7 +96,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
         alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmReceiver.class);
-        alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 
 
@@ -71,8 +105,8 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
         // Set the alarm to fire at approximately 8:30 a.m., according to the device's
         // clock, and to repeat once a day.
-        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP,
-                cal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmIntent);
+        alarmMgr.set(AlarmManager.RTC_WAKEUP,
+                cal.getTimeInMillis(), alarmIntent);
 
         // Enable {@code SampleBootReceiver} to automatically restart the alarm when the
         // device is rebooted.

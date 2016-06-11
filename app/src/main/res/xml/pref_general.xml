@@ -12,6 +12,13 @@
          />
 
 
+    <ListPreference android:key="@string/athan_sound"
+        android:title="@string/athan_sound"
+        android:summary="@string/nasser_elqatamy"
+        android:entries="@array/athanlistentries"
+        android:entryValues="@array/athanlistvalues"
+        android:defaultValue="1"
+        />
 
 
 </PreferenceCategory>

@@ -14,7 +14,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
@@ -41,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
     Intent intent;
     TextView zekr;
     GregorianCalendar geoCal;
-    BroadcastReceiver receiver;
     double latitude, longitude;
 
     protected TextView mTextViewCity;
@@ -51,32 +49,148 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
     ArrayList prayerTimes;
     ArrayList prayerNames;
     SwitchCompat switchCompat;
+    boolean mReceiverIsRegistered;
+    protected BroadcastReceiver mReceiver;
+    public final static String NOTIFY_MESSAGE = "org.linuxac.bilal.NOTIFY";
+    public final static String UPDATE_MESSAGE = "org.linuxac.bilal.UPDATE";
+    protected static final String TAG = "Zekr";
 
+    static int count=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        initReceiver();
         initViews();
         initViewData(geoCal);
         Intent getIntent = getIntent();
         String data = getIntent.getStringExtra("zekrData");
         zekr.setText(data);
-        Log.e("MainActivity ", "onCreate()");
-
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                UpdateUi(intent);
-
-            }
-        };
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String time = preferences.getString("formatKey", "Set Clock");
         if (!time.equalsIgnoreCase("")) {
             clock.setText(time);
         }
 
+
+        Log.e("MainActivity ", "onCreate()");
+
+
+    }
+
+    private void initReceiver() {
+        mReceiverIsRegistered = false;
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                // Extract data included in the Intent
+                Log.e("Update", "update prayer times");
+                updateUIData();
+            }
+        };
+    }
+
+    private void updateUIData() {
+
+        double timezone = (Calendar.getInstance().getTimeZone()
+                .getOffset(Calendar.getInstance().getTimeInMillis()))
+                / (1000 * 60 * 60);
+
+        prayers = new PrayTime();
+
+        prayers.setTimeFormat(prayers.Time12);
+        prayers.setCalcMethod(prayers.Egypt);
+        prayers.setAsrJuristic(prayers.Shafii);
+        prayers.setAdjustHighLats(prayers.AngleBased);
+        int[] offsets = {0, 0, 0, 0, 0, 0, 0}; // {Fajr,Sunrise,Dhuhr,Asr,Sunset,Maghrib,Isha}
+        prayers.tune(offsets);
+
+        Date now = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(now);
+
+        int i, j;
+
+        String[] dataArr = new String[prayerTimes.size()];
+        dataArr = (String[]) prayerTimes.toArray(dataArr);
+
+        ArrayList<String> pt = prayers.getPrayerTimes(cal, latitude, longitude, timezone);
+
+        AlarmTimeHandFormat form=new AlarmTimeHandFormat();
+
+        GregorianCalendar nowCal = new GregorianCalendar();
+        // Find next prayer and set alarm
+        GregorianCalendar next = null;
+        GregorianCalendar[] ptCal = new GregorianCalendar[prayerTimes.size()];
+        for (i = 0; i < prayerTimes.size(); i++) {
+            ptCal[i] = (GregorianCalendar)nowCal.clone();
+            ptCal[i].set(Calendar.HOUR_OF_DAY,form.getHours(pt.get(i)));
+            ptCal[i].set(Calendar.MINUTE, form.getMinutes(pt.get(i)));
+            ptCal[i].set(Calendar.SECOND,0);
+        }
+
+        for (i = 0; i < prayerTimes.size(); i++) {
+            if (ptCal[i].after(nowCal)) {
+                if (i == 1 || i==4) {
+                    i++;            // skip sunrise,sunset which isn't a prayer
+                }
+                next = ptCal[i];
+                count=i;
+                break;
+            }
+        }
+
+
+        for (int m = 0; m < prayerTimes.size(); m++) {
+            Log.e("Pray ", prayerNames.get(m) + " - "
+                    + prayerTimes.get(m));
+        }
+
+        if (next == null) {
+            // next prayer is tomorrow's Fajr
+            ArrayList<String> nextPT = prayers.getPrayerTimes(cal, latitude, longitude, timezone);
+            /*
+            // then i == Prayer.NB_PRAYERS
+            mTextViewPrayers[i][1].setText(
+                    String.format(" %3d:%02d\n", nextPT.hour, nextPT.minute));
+            for (j = 0; j < 3; j++) {
+                mTextViewPrayers[i][j].setVisibility(TextView.VISIBLE);
+            }*/
+
+            next = (GregorianCalendar)nowCal.clone();
+            next.add(Calendar.DATE, 1);
+            next.set(Calendar.HOUR_OF_DAY, form.getHours(nextPT.get(count)));
+            next.set(Calendar.MINUTE, form.getMinutes(nextPT.get(count)));
+            next.set(Calendar.SECOND, 0);
+        }
+
+        // prepare alarm message in AR only
+        if (i >= prayerTimes.size()) {
+            i = 0;
+            count=i;
+            // Removes "next" from "next fajr" loop from start again
+        }
+
+        for (j = 0; j < 3; j++) {
+            mTextViewPrayers[count][j].setTypeface(null, Typeface.BOLD);
+            mTextViewPrayers[count][j].setTextColor(Color.rgb(0, 200, 0));
+        }
+
+
+
+        String message = getString(R.string.hana_ar) + " " +
+                mTextViewPrayers[count][0].getText().toString() + " " +
+                mTextViewPrayers[count][1].getText().toString();
+
+        // Schedule alarm
+        Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+        alarmIntent.putExtra(NOTIFY_MESSAGE, message);
+        PendingIntent sender = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager am = (AlarmManager)getSystemService(ALARM_SERVICE);
+        am.set(AlarmManager.RTC_WAKEUP, next.getTimeInMillis(), sender);
+        Log.e("Next ", "Alarm scheduled for " +
+                DateFormat.getDateTimeInstance().format(next.getTime()));
 
     }
 
@@ -114,11 +228,10 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
         mTextViewCity.setText(cityName);
 
 
-        prayerTimes = prayers.getPrayerTimes(cal, latitude,
-                longitude, timezone);
+        prayerTimes = prayers.getPrayerTimes(cal, latitude, longitude, timezone);
         prayerNames = prayers.getTimeNames();
-        prayerTimes = prayers.getPrayerTimes(geoCal, latitude,
-                longitude, timezone);
+
+        prayerTimes = prayers.getPrayerTimes(geoCal, latitude, longitude, timezone);
         prayerNames = prayers.getTimeNames();
 
         int i, j;
@@ -131,28 +244,26 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
 
         for (i = 0; i < prayerTimes.size(); i++) {
             for (j = 0; j < 3; j++) {
+                if(i==4){
+                    mTextViewPrayers[i][j].setVisibility(View.GONE);
+                }
                 mTextViewPrayers[i][j].setTypeface(null, Typeface.NORMAL);
                 mTextViewPrayers[i][j].setTextColor(Color.rgb(0, 0, 0));
 
             }
         }
 
+
+
         String[] dataArr = new String[prayerTimes.size()];
         dataArr = (String[]) prayerTimes.toArray(dataArr);
 
 
         for (int k = 0; k < prayerTimes.size(); k++) {
+
             mTextViewPrayers[k][1].setText(dataArr[k] + "");
 
-
         }
-
-
-        for (int m = 0; m < prayerTimes.size(); m++) {
-            Log.e("Pray ", prayerNames.get(m) + " - "
-                    + prayerTimes.get(m));
-        }
-
 
     }
 
@@ -205,6 +316,7 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
                         (TextView) findViewById(R.id.textViewAsr),
                         (TextView) findViewById(R.id.textViewAsrEN)
                 },
+
                 {
                         (TextView) findViewById(R.id.textViewSunSetAR),
                         (TextView) findViewById(R.id.textViewSunset),
@@ -227,21 +339,11 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
 
     }
 
-    private void UpdateUi(Intent intent) {
-
-
-        String s = intent.getStringExtra(AlarmService.COPA_MESSAGE);
-        // do something here.
-        zekr.setText(s);
-
-    }
 
 
     @Override
     protected void onStart() {
         super.onStart();
-        LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
-                new IntentFilter(AlarmService.COPA_RESULT));
 
         Log.e("MainActivity ", "onStart()");
 
@@ -253,7 +355,6 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
     protected void onStop() {
         super.onStop();
         Log.e("MainActivity ", "onStop()");
-        //LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
     }
 
 
@@ -322,6 +423,11 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
         longitude = Double.parseDouble(lat_long.substring(lat_long.indexOf('/') + 1));
 
         initViewData(geoCal);
+        if (!mReceiverIsRegistered) {
+            registerReceiver(mReceiver, new IntentFilter(MainActivity.UPDATE_MESSAGE));
+            mReceiverIsRegistered = true;
+        }
+        updateUIData();
     }
 
     private String getCityName(String lat_long_data) {
@@ -374,6 +480,10 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
     protected void onPause() {
         super.onPause();
         Log.e("MainActivity ", "onPause()");
+        if (mReceiverIsRegistered) {
+            unregisterReceiver(mReceiver);
+            mReceiverIsRegistered = false;
+        }
 
     }
 
@@ -397,15 +507,18 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
         intent = new Intent(MainActivity.this, AlarmReceiver.class);
         // Create a PendingIntent to be triggered when the alarm goes off
         pIntent = PendingIntent.getBroadcast(this, 0,
-                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                intent, PendingIntent.FLAG_CANCEL_CURRENT);
         alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
 
-        alarm.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
-                pIntent);
+        alarm.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis()
+               , pIntent);
 
         if(!switchCompat.isChecked()){
             switchCompat.setChecked(true);
         }
+
+
+
 
     }
 
@@ -457,7 +570,4 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
     }
 
 
-    public void switchAlarm(View view) {
-
-    }
 }
