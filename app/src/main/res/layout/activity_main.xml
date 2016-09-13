@@ -10,49 +10,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@drawable/mosque"
     >
 
 
-<FrameLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="#95a5a6"
-    android:layout_weight="1">
 
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:onClick="setAlarm"
-        android:textSize="25sp"
-        android:id="@+id/text_clock"
-        android:text="@string/set_clock"
-
-        />
-
-
-    <android.support.v7.widget.SwitchCompat
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_switch"
-        android:layout_gravity="end"
-        android:checked="true"
-
-        />
-
-</FrameLayout>
-
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal|center_vertical"
-        android:textSize="40sp"
-        android:id="@+id/text_zekr"
-        android:layout_weight="2"
-        android:background="#95a5a6"
-        />
 
 
 
@@ -63,9 +25,10 @@
             android:paddingLeft="1dp"
             android:paddingRight="1dp"
             android:paddingTop="1dp"
-            android:background="#ecf0f1"
             android:paddingBottom="1dp"
             tools:context=".BilalActivity">
+
+
 
             <TableRow
                 android:layout_width="fill_parent"
@@ -78,6 +41,32 @@
                     android:gravity="center_horizontal"
                     android:text=""
                     android:id="@+id/textViewCity"
+                    android:layout_gravity="center_horizontal"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:layout_margin="1dp"
+                    android:layout_span="3" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center_horizontal">
+                <Space
+                    android:layout_width="20dp"
+                    android:layout_height="5dp" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:text=""
+                    android:id="@+id/textViewHijriData"
                     android:layout_gravity="center_horizontal"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:layout_margin="1dp"
@@ -481,6 +470,8 @@
 
 
         </TableLayout>
+
+
 
 
 

@@ -35,7 +35,8 @@ public class AlarmService extends Service implements MediaPlayer.OnPreparedListe
         if (null == audioPlayer) {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             String defaultSound="android.resource://" + getPackageName() + "/" + R.raw.athan;
-            String path = preferences.getString("athan_sound", defaultSound);
+            String path = preferences.getString(getResources().getString(R.string.athan_sound), defaultSound);
+            Log.e("azan1",path);
             switch (path) {
                 case "1":
                     path = "android.resource://" + getPackageName() + "/" + R.raw.athan;
@@ -45,6 +46,9 @@ public class AlarmService extends Service implements MediaPlayer.OnPreparedListe
                     break;
                 case "3":
                     path = "android.resource://" + getPackageName() + "/" + R.raw.el_haram;
+                    break;
+                default:
+                    path="android.resource://" + getPackageName() + "/" + R.raw.athan;
                     break;
             }
             Log.e("azan",path);

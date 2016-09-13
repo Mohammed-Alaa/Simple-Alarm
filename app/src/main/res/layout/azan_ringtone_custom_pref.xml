@@ -1,0 +1,50 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/widget_frame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="7dp"
+    android:layout_margin="5dp"
+    android:orientation="vertical" >
+
+
+
+
+
+    <RadioGroup
+        android:id="@+id/radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:orientation="vertical">
+        <RadioButton
+            android:id="@+id/first"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:drawablePadding="30dp"
+            android:button="@null"
+            android:checked="true"
+            android:drawableRight="@drawable/radio"
+            android:text="@string/abd_elbasset"
+            android:gravity="center_vertical"/>
+<View
+    android:layout_width="match_parent"
+    android:layout_height="0.8dp"
+    android:background="#aca4a4"
+    />
+
+        <RadioButton
+            android:id="@+id/second"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:drawablePadding="30dp"
+            android:button="@null"
+            android:drawableRight="@drawable/radio"
+            android:text="@string/naser_el_qatamy"
+            android:gravity="center_vertical"/>
+    </RadioGroup>
+
+
+
+</LinearLayout>

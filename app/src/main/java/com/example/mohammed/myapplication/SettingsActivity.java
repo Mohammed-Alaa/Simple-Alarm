@@ -21,6 +21,8 @@ import android.preference.RingtonePreference;
 public class SettingsActivity extends PreferenceActivity
         implements Preference.OnPreferenceChangeListener {
 
+    String name;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +33,7 @@ public class SettingsActivity extends PreferenceActivity
         bindPreferenceSummaryToValue(findPreference(getString(R.string.ringtone_pref)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.vibrate_pref)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.athan_sound)));
-
+        //bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_athan_cutom)));
 
     }
 
@@ -49,7 +51,9 @@ public class SettingsActivity extends PreferenceActivity
                             .getDefaultSharedPreferences(preference.getContext())
                             .getBoolean(preference.getKey(), false));
 
-        } else {
+
+        }
+        else {
             onPreferenceChange(preference,
                     PreferenceManager
                             .getDefaultSharedPreferences(preference.getContext())
@@ -103,7 +107,9 @@ public class SettingsActivity extends PreferenceActivity
             }
             preference.setSummary(on_off);
 
-        } else {
+        }
+
+        else {
             // For other preferences, set the summary to the value's simple string representation.
             preference.setSummary(stringValue);
         }

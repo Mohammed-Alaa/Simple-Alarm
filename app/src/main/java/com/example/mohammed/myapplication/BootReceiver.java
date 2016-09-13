@@ -1,25 +1,19 @@
 package com.example.mohammed.myapplication;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
-import java.util.Calendar;
+import android.support.v4.content.WakefulBroadcastReceiver;
 
 /**
  * Created by mohammed on 5/29/16.
  */
-public class BootReceiver extends BroadcastReceiver {
-
-    Calendar calendar;
-AlarmReceiver alarm=new AlarmReceiver();
+public class BootReceiver extends WakefulBroadcastReceiver {
 
 
 
-    // Triggered by the Alarm periodically (starts the service to run task)
     @Override
     public void onReceive(Context context, Intent intent) {
-             alarm.setAlarm(context);
+
 
     }
 
