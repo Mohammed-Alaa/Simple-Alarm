@@ -161,14 +161,15 @@ public class MainActivity extends AppCompatActivity{
                 mTextViewPrayers[count][1].getText().toString();
 
         // Schedule alarm
-        Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-        alarmIntent.putExtra(NOTIFY_MESSAGE, message);
-        PendingIntent sender = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager am = (AlarmManager)getSystemService(ALARM_SERVICE);
-        am.set(AlarmManager.RTC_WAKEUP, next.getTimeInMillis(), sender);
-        Log.e("Next ", "Alarm scheduled for " +
-                DateFormat.getDateTimeInstance().format(next.getTime()));
+            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+            alarmIntent.putExtra(NOTIFY_MESSAGE, message);
+            PendingIntent sender = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+            am.set(AlarmManager.RTC_WAKEUP, next.getTimeInMillis(), sender);
+            Log.e("Next ", "Alarm scheduled for " +
+                    DateFormat.getDateTimeInstance().format(next.getTime()));
+
 
 
     }

@@ -40,16 +40,6 @@
             android:process=":remote">
         </receiver>
 
-        <receiver
-            android:name=".BootReceiver"
-            android:enabled="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </receiver>
-
         <service
             android:name=".AlarmService"
             android:exported="false"
